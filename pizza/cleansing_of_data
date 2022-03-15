@@ -1,6 +1,6 @@
 Cleansing of the data.
 
--- cleansing of the data
+-- solution is in postgresql
 
 drop table temp_customer_orders;
 drop table temp_runner_orders;
