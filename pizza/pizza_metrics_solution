@@ -1,0 +1,36 @@
+
+1. How many pizzas were ordered?
+
+select count(*) as pizzaa_order_count
+from temp_customer_orders;
+-----------------------------------------------------------------------------------------------------------------------------
+2. How many unique customer orders were made?
+
+select count(distinct(order_id)) as unique_orders_count
+from temp_runner_orders;
+-----------------------------------------------------------------------------------------------------------------------------
+3. How many successful orders were delivered by each runner?
+
+select count(runner_id) as successful_order
+from temp_runner_orders
+where duration != '0'
+group by runner_id;
+-----------------------------------------------------------------------------------------------------------------------------
+4. How many of each type of pizza was delivered
+
+select pn.pizza_name, count(pn.pizza_id) as total_count
+from temp_runner_orders ro
+join temp_customer_orders co
+on ro.order_id = co.order_id
+join pizza_names pn
+on pn.pizza_id = co.pizza_id
+where ro.duration != '0'
+group by pn.pizza_name;
+-----------------------------------------------------------------------------------------------------------------------------
+5. How many Vegetarian and Meatlovers were ordered by each customer?
+
+select distinct(co.customer_id), count(co.pizza_id), pn.pizza_name
+from temp_customer_orders co
+join pizza_names pn
+on pn.pizza_id = co.pizza_id
+group by co.customer_id, pn.pizza_name;
