@@ -34,3 +34,42 @@ from temp_customer_orders co
 join pizza_names pn
 on pn.pizza_id = co.pizza_id
 group by co.customer_id, pn.pizza_name;
+-----------------------------------------------------------------------------------------------------------------------------
+6. What was the maximum number of pizzas delivered in a single order?
+
+select co.order_id, count(co.pizza_id) as pizza_per_order
+from temp_customer_orders co
+join temp_runner_orders ro
+on co.order_id = ro.order_id
+where duration != 0
+group by co.order_id
+-----------------------------------------------------------------------------------------------------------------------------
+7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+
+with delivered_order_cte as (
+select co.order_id, co.customer_id, co.pizza_id,
+	co.exclusion, co.extras, ro.runner_id,
+	ro.pickup_time, ro.distance, ro.duration,
+	ro.cancellation
+	from temp_customer_orders co
+ 	join temp_runner_orders ro
+	on co.order_id = ro.order_id
+	where duration != 0
+)
+
+select customer_id, 
+sum(
+case 
+	when exclusion = '' and extras = '' then 1
+	else 0
+	end) as no_change,
+sum(
+case 
+	when exclusion > '' or extras > '' then 1
+	else 0
+	end) as atleat_1_change
+	
+from delivered_order_cte
+group by customer_id
+order by customer_id;
+order by pizza_per_order desc limit 1;
