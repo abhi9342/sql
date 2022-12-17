@@ -59,3 +59,55 @@ alter column distance type float
 using (CASE WHEN distance = '' THEN 0.0 ELSE distance::float END),
 alter column duration type integer
 using (CASE WHEN duration = '' THEN 0.0 ELSE duration::integer END);
+
+-- snowflake solution
+drop table temp_runner_orders
+
+create table temp_runner_orders as 
+select 
+    order_id, 
+    runner_id,
+	case
+	when pickup_time like 'null' then null
+	else to_timestamp(pickup_time::timestamp_ntz)
+	end as pickup_time,
+    
+	case 
+	when distance like 'null' then null
+	when distance like '%km' then trim(distance,'km')::float
+	when distance like '%mins' then trim(distance,'mins')::float
+	when distance like '%minute' then trim(distance,'minute')::float
+	when distance like '%minutes' then trim(distance,'minutes')::float
+	else distance::float
+	end as distance,
+
+	case 
+	when duration like 'null' then null
+	when duration like '%mins' then trim(duration,'mins')::integer
+	when duration like '%minutes' then trim(duration,'minutes')::integer
+	when duration like '%minute' then trim(duration,'minute')::integer
+	else duration::integer
+	end as duration,
+
+	case
+	when cancellation like 'null' then null
+	else cancellation
+	end as cancellation
+from runner_orders;
+
+
+drop table temp_customer_orders
+create table temp_customer_orders as
+select order_id, customer_id, pizza_id,
+	case
+	when exclusions like 'null' then null
+	else exclusions
+	end as exclusion,
+
+	case 
+	when extras like 'null' then null
+	else extras
+	end as extras
+from customer_orders;
+
+select * from temp_customer_orders
